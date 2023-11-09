@@ -13,8 +13,8 @@ def fetchImage(pa):
     src = f'src="data:image/gif;base64,{data_url}" style="height: 250px"'
     return src
 
-pa = "Res\Luffy.jpg"
-pe = "Res\placeholder.jpg"
+pa = "Res/Luffy.jpg"
+pe = "Res/placeholder.jpg"
 
 # Setting page to utilize Full Body Size
 st.set_page_config(layout="wide")
@@ -63,10 +63,9 @@ imgPath = col1.text_input("Image Path:")
 col1.markdown("<div style=\"text-align: center;\">─── OR ───</div>", unsafe_allow_html=True)
 imgPick = col1.file_uploader("Choose image:")
 col2.write("")
-similarImgEle = col2.image("Res\placeholder.jpg")
+similarImgEle = col2.image("Res/placeholder.jpg")
 similarImg = None
 similarImgHash = None
-#S:\College\Resources\2022 - 23 Fall Semester\CSE3501 - Information Security Analysis and Audit\Project\Image Retirval using Perceptual Image Hashing\Res\Luffy.jpg
 if imgPath:
     similarImg = Image.open(imgPath)
 if imgPick is not None:
@@ -124,6 +123,6 @@ for i in listSimilarImages:
     cont.markdown(i[0])
     cont.markdown("Hamming Distance = " + str(i[1]))
 # for i in range(imgCount):
-#     cont.image("Res\placeholder.jpg")
+#     cont.image("Res/placeholder.jpg")
 
 #cont.markdown(carouselImg,unsafe_allow_html=True)

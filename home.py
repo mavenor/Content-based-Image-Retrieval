@@ -19,4 +19,4 @@ minThreshold = col1.text_input("Minimum threshold required:")
 hashType = col1.selectbox("Hashing Technique :", ["Average hash", "Perceptive hash", "Gradient hash", "Wavelet hashing"])
 
 col2.write("")
-col2.image("Res\placeholder.jpg")
+col2.image("Res/placeholder.jpg")
