@@ -20,37 +20,39 @@ __, cont, __ = st.columns([1,5,1])
 path = cont.text_input("Enter path of directory containing images:")
 btn = cont.button("Hash Folder")
 method = cont.radio("Choose hashing method:", ('Parallel', 'Serial'))
-hashStatus = False
+
+if 'hashStatus' not in st.session_state:
+    st.session_state.hashStatus: bool = False
+    
 progMsg = cont.markdown("")
 
 
-if method == "Serial" and path and btn  :
+if path and btn:
+    if method == "Serial":
+        x = hashes.hashes(path)
+        start = time.time()
+        st.session_state.hashStatus, st.session_state.hashValues = x.compute_hashes_serial()
+        end = time.time()
+        progMsg.text("Time taken = " + str(end - start))
 
-    x = hashes.hashes(path)
-    start = time.time()
-    hashStatus, hashValues = x.compute_hashes_serial()
-    end = time.time()
-    progMsg.text("Time taken = " + str(end - start))
+    elif method == "Parallel":
 
-elif method == "Parallel" and path and btn:
-
-    x = hashes.hashes(path)
-    start = time.time()
-    hashStatus, hashValues = x.compute_hashes_parallel(num_workers = os.cpu_count())
-    end = time.time()
-    progMsg.text("Time taken = " + str(end - start))
+        x = hashes.hashes(path)
+        start = time.time()
+        st.session_state.hashStatus, st.session_state.hashValues = x.compute_hashes_parallel(num_workers = os.cpu_count())
+        end = time.time()
+        progMsg.text("Time taken = " + str(end - start))
 
 
 cont.write(" ")
 
-
-if hashStatus is not None and hashStatus:
+if st.session_state.hashStatus:
     cont.write("✅ Hashing Complete! 😎")
     cont.write(" ")
 
     dfFrame, __, exportBtns = cont.columns([10,1,6])
     #Panda Data Frame
-    df = pd.DataFrame(hashValues, columns=["Image", "Hash Value", "Path"]) 
+    df = pd.DataFrame(st.session_state.hashValues, columns=["Image", "Hash Value", "Path"]) 
     dfFrame.write("Hash Table:")
     dfFrame.dataframe(df)
 
