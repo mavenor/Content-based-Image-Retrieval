@@ -70,7 +70,7 @@ similarImgHash = None
 if imgPath:
     similarImg = Image.open(imgPath)
 if imgPick is not None:
-    f = open("temp.txt", "wb")
+    f = open("tmp/temp.txt", "wb")
     f.write(imgPick.getvalue())
     f.close()
     similarImg = Image.open("temp.txt")

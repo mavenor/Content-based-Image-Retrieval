@@ -2,6 +2,9 @@
 Res
 output
 
+# Transient files
+tmp/
+
 # Python Cache
 __pycache__
 
