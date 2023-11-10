@@ -72,7 +72,7 @@ if imgPick is not None:
     f = open("tmp/temp.txt", "wb")
     f.write(imgPick.getvalue())
     f.close()
-    similarImg = Image.open("temp.txt")
+    similarImg = Image.open("tmp/temp.txt")
 if similarImg is not None:
     similarImgEle.image(similarImg)
     similarImgHash = imagehash.phash(similarImg)
