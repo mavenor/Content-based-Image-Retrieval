@@ -8,7 +8,6 @@ import numpy as np
 import argparse
 import time
 import sys
-import cv2
 from PIL import Image
 import os
 import base64
@@ -42,13 +41,13 @@ Discarding color enables us to:
 - Match images that are identical but have slightly altered color spaces (since color information has been removed)
 """)
 cont.markdown("##### Illustration:")
-image = cont.file_uploader("Example image:", type= ["jpeg", "png", "jpg"])
+img = cont.file_uploader("Example image:", type= ["jpeg", "png", "jpg"])
 x, y, z = cont.columns([3,1,3])
-if image is not None:
-    x.image(image)
+if img is not None:
+    x.image(img)
     x.markdown("***Original Image***")
-    img = Image.open(image)
-    greyScaleImg = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
+    img = Image.open(img)
+    greyScaleImg = img.convert('L')
     z.image(greyScaleImg)
     z.write("***Greyscale Image***")
 
@@ -63,7 +62,7 @@ hashSize = cont.text_input("HashSize:")
 if (hashSize is not None) and hashSize.isnumeric():
     cont.write("hashSize")
     cont.write(hashSize)
-    resized = cv2.resize(greyScaleImg, (int(hashSize),int(hashSize)))
+    resized = greyScaleImg.resize((int(hashSize), int(hashSize)), Image.LANCZOS)
     cont.image(resized)
 
     
