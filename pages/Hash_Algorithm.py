@@ -33,7 +33,7 @@ By utilizing image hashing algorithms we can find near-identical images in const
 """)
 
 cont.markdown("""
-#### Step #1: Convert to grayscale
+#### Step #1: Convert to Greyscale
 
 The first step in our image hashing algorithm is to convert the input image to grayscale and discard any color information.
 Discarding color enables us to:
@@ -47,12 +47,12 @@ greyScaleImg = None
 resized = None
 diff = None
 if img is not None:
-    x.image(img)
-    x.markdown("***Original Image***")
+    x.image(img, caption = "Original Image")
+    # x.markdown("***Original Image***")
     img = Image.open(img)
     greyScaleImg = img.convert('L')
-    z.image(greyScaleImg)
-    z.write("***Greyscale Image***")
+    z.image(greyScaleImg, caption = "Greyscale Image")
+    # z.write("***Greyscale Image***")
 
 cont.markdown("""
 #### Step #2: Resize
@@ -72,27 +72,31 @@ if greyScaleImg is not None:
     
     
 cont.markdown("""
-#### Step #3: Compute the difference
+#### Step #3: Compute the Hash
 - ***Reduce the DCT***: While the DCT is 32x32, just keep the top-left 8x8. Those represent the lowest frequencies in the picture.
 - ***Compute the average value***: Like the Average Hash, compute the mean DCT value (using only the 8x8 DCT low-frequency values and excluding the first term since the DC coefficient can be significantly different from the other values and will throw off the average).
 - ***Further reduce the DCT***. This is the magic step. Set the 64 hash bits to 0 or 1 depending on whether each of the 64 DCT values is above or below the average value. The result doesn't tell us the actual low frequencies; it just tells us the very-rough relative scale of the frequencies to the mean. The result will not vary as long as the overall structure of the image remains the same; this can survive gamma and color histogram adjustments without a problem.
 """)
 if resized is not None:
-    x, y, z = cont.columns([4,1,5])
+    x, __, y = cont.columns([4,1,4])
     pixels = np.asarray(resized)
-    x.write("Pixels:")
+    x.write(f"**Bitmap** <small>({hashSize}×{hashSize})</small>", unsafe_allow_html=True)
     x.write(pixels)
     dct = scipy.fftpack.dct(scipy.fftpack.dct(pixels, axis=0), axis=1)
     dctlowfreq = dct[:int(hash_len), :int(hash_len)]
+    y.write(f"**DCT** <small>({hashSize}×{hashSize})</small>", unsafe_allow_html=True)
+    y.write(dctlowfreq)
     med = np.median(dctlowfreq)
-    y.write("med:")
-    y.write(med)
+    x.write("**Truncated DCT**")
+    x.write(dctlowfreq)
     diff = dctlowfreq > med
-    z.write("diff:")
-    z.write(diff)
+    y.write("**Median** <small>(of truncated DCT)</small>", unsafe_allow_html=True)
+    y.write(f"`~{med:.2f}`")
+    y.write(f"**Median-hash** <small>({hash_len}×{hash_len})</small>", unsafe_allow_html=True)
+    y.write(diff)
 
 cont.markdown("""
-#### Step #4: Build the hash
+#### Step #4: Flatten the Hash
 Set the 64 bits into a 64-bit integer. The order does not matter, just as long as you are consistent. To see what this fingerprint looks like, simply set the values (this uses +255 and -255 based on whether the bits are 1 or 0) and convert from the 32x32 DCT (with zeros for the high frequencies) back into the 32x32 image.
 """)
 if diff is not None:
