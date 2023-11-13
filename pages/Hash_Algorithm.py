@@ -96,6 +96,7 @@ cont.markdown("""
 Set the 64 bits into a 64-bit integer. The order does not matter, just as long as you are consistent. To see what this fingerprint looks like, simply set the values (this uses +255 and -255 based on whether the bits are 1 or 0) and convert from the 32x32 DCT (with zeros for the high frequencies) back into the 32x32 image.
 """)
 if diff is not None:
-    hashValue = sum([2**(i) for i, v in enumerate(diff.flatten()) if v])
-    cont.write("hashValue:")
-    cont.write(hashValue)
+    f = diff.flatten()
+    l = f.shape[0] - 1
+    hashValue = sum([2**(l - i) for i, v in enumerate(f) if v])
+    cont.write(f"**Final hash: `{hashValue:x}`**")
