@@ -43,6 +43,9 @@ Discarding color enables us to:
 cont.markdown("##### Illustration:")
 img = cont.file_uploader("Example image:", type= ["jpeg", "png", "jpg"])
 x, y, z = cont.columns([3,1,3])
+greyScaleImg = None
+resized = None
+diff = None
 if img is not None:
     x.image(img)
     x.markdown("***Original Image***")
@@ -58,13 +61,15 @@ Now that our input image has been converted to grayscale, we need to squash it d
 We squash the image down to 9×8 and ignore aspect ratio to ensure that the resulting image hash will match similar photos regardless of their initial spatial dimensions.
 """)
 cont.markdown("##### Illustration:")
-hashSize = cont.text_input("HashSize:")
-if (hashSize is not None) and hashSize.isnumeric():
-    cont.write("hashSize")
-    cont.write(hashSize)
+size_input, __, resized_output = cont.columns([3,1,3])
+hash_len = size_input.number_input("Hash Length", min_value=1, value=8)
+high_freq_factor = size_input.number_input("DCT Truncation Factor", min_value=1, value=4)
+hashSize = hash_len * high_freq_factor
+if greyScaleImg is not None:
     resized = greyScaleImg.resize((int(hashSize), int(hashSize)), Image.LANCZOS)
-    cont.image(resized)
-
+    resized_output.image(resized, caption = "Resized Image ({}×{})".format(hashSize, hashSize))
+    resized_output.write("<style>div.e115fcil1 img {image-rendering: pixelated;}</style>", unsafe_allow_html=True)
+    
     
 cont.markdown("""
 #### Step #3: Compute the difference
@@ -72,13 +77,13 @@ cont.markdown("""
 - ***Compute the average value***: Like the Average Hash, compute the mean DCT value (using only the 8x8 DCT low-frequency values and excluding the first term since the DC coefficient can be significantly different from the other values and will throw off the average).
 - ***Further reduce the DCT***. This is the magic step. Set the 64 hash bits to 0 or 1 depending on whether each of the 64 DCT values is above or below the average value. The result doesn't tell us the actual low frequencies; it just tells us the very-rough relative scale of the frequencies to the mean. The result will not vary as long as the overall structure of the image remains the same; this can survive gamma and color histogram adjustments without a problem.
 """)
-if (hashSize is not None) and hashSize.isnumeric():
+if resized is not None:
     x, y, z = cont.columns([4,1,5])
     pixels = np.asarray(resized)
     x.write("Pixels:")
     x.write(pixels)
     dct = scipy.fftpack.dct(scipy.fftpack.dct(pixels, axis=0), axis=1)
-    dctlowfreq = dct[:int(hashSize), :int(hashSize)]
+    dctlowfreq = dct[:int(hash_len), :int(hash_len)]
     med = np.median(dctlowfreq)
     y.write("med:")
     y.write(med)
@@ -90,7 +95,7 @@ cont.markdown("""
 #### Step #4: Build the hash
 Set the 64 bits into a 64-bit integer. The order does not matter, just as long as you are consistent. To see what this fingerprint looks like, simply set the values (this uses +255 and -255 based on whether the bits are 1 or 0) and convert from the 32x32 DCT (with zeros for the high frequencies) back into the 32x32 image.
 """)
-if (hashSize is not None) and hashSize.isnumeric():
+if diff is not None:
     hashValue = sum([2**(i) for i, v in enumerate(diff.flatten()) if v])
     cont.write("hashValue:")
     cont.write(hashValue)
