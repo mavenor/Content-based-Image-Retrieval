@@ -3,7 +3,7 @@ import streamlit as st
 import streamlit_nested_layout
 from imutils import paths
 from tkinter import Tk, filedialog
-import scipy.fftpack
+from scipy.fft import dct
 import numpy as np
 import argparse
 import time
@@ -82,8 +82,8 @@ if resized is not None:
     pixels = np.asarray(resized)
     x.write(f"**Bitmap** <small>({hashSize}×{hashSize})</small>", unsafe_allow_html=True)
     x.write(pixels)
-    dct = scipy.fftpack.dct(scipy.fftpack.dct(pixels, axis=0), axis=1)
-    dctlowfreq = dct[:int(hash_len), :int(hash_len)]
+    signals = dct(dct(pixels, axis=0, workers=-1), axis=1, workers=-1)
+    dctlowfreq = signals[:int(hash_len), :int(hash_len)]
     y.write(f"**DCT** <small>({hashSize}×{hashSize})</small>", unsafe_allow_html=True)
     y.write(dctlowfreq)
     med = np.median(dctlowfreq)
